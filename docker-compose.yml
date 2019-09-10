@@ -1,0 +1,81 @@
+# # All rights reserved.
+#
+version: "2.2"
+
+services:
+
+  crpd1:
+    image: crpd:19.2R1.8
+    container_name: crpd1
+    hostname: crpd1
+    privileged: true
+#    network_mode: "none"
+    restart: on-failure
+    volumes:
+      - $PWD/crpd1:/config
+    networks:
+      net1-site1:
+
+  crpd2:
+    image: crpd:19.2R1.8
+    container_name: crpd2
+    hostname: crpd2
+    privileged: true
+#    network_mode: "none"
+    restart: on-failure
+    volumes:
+      - $PWD/crpd2:/config
+    networks:
+      net2-site2:
+
+  snabb1:
+    image: snabb
+    container_name: snabb1
+    hostname: snabb1
+    privileged: true
+    restart: on-failure
+    command: l2vpn /u/snabb1.conf.txt
+    volumes:
+      - $PWD/snabb1:/u
+    networks:
+      net0-public:
+         ipv6_address: 2001:db8:0:C101::101
+      net1-site1:
+
+  snabb2:
+    image: snabb
+    container_name: snabb2
+    hostname: snabb2
+    privileged: true
+    restart: on-failure
+    command: l2vpn /u/snabb2.conf.txt
+    volumes:
+      - $PWD/snabb2:/u
+    networks:
+      net0-public:
+         ipv6_address: 2001:db8:0:C101::102
+      net2-site2:
+
+
+networks:
+  net0-public:
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.20.0.0/24
+        - subnet: 2001:db8:0:C101::/64
+
+  net1-site1:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.101.0/24
+
+  net2-site2:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.102.0/24
+
+

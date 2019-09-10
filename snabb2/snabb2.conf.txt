@@ -1,0 +1,106 @@
+l2vpn-config {
+  instance-name "snabb2";
+  snmp {
+    enable true;
+  }
+  luajit {
+    dump {
+      enable true;
+      option "+rs";
+      file "/tmp/dump-%p";
+    }
+  }
+  interface {
+    name "TenGigE0/1";
+    description "uplink";
+    driver {
+      path "apps.socket.raw";
+      name "RawSocket";
+      config "{ name = 'eth0' }";
+    }
+    mtu 9206;
+    address-families {
+      ipv6 {
+        address "2001:db8:0:C101:0:0:0:102";
+        next-hop "2001:db8:0:C101:0:0:0:101";
+      }
+    }
+  }
+  interface {
+    name "TenGigE0/0";
+    description "AC";
+    driver {
+      path "apps.socket.raw";
+      name "RawSocket";
+      config "{ name = 'eth1' }";
+    }
+    mtu 9206;
+  }
+  peers {
+    local {
+      name "A";
+      endpoint {
+        name "local";
+        address {
+          ipv6 "2001:db8:0:1:0:0:0:2";
+        }
+      }
+    }
+    remote {
+      name "B";
+      endpoint {
+        name "remote";
+        address {
+          ipv6 "2001:db8:0:1:0:0:0:1";
+        }
+      }
+    }
+  }
+  transport {
+    name "transport";
+    address-family "ipv6";
+    local {
+      peer "A";
+      endpoint "local";
+    }
+    remote {
+      peer "B";
+      endpoint "remote";
+    }
+  }
+  vpls {
+    name "myvpn";
+    description "Endpoint A of a point-to-point L2 VPN";
+    uplink "TenGigE0/1";
+    mtu 9206;
+    attachment-circuit {
+      name "ac_A";
+      interface "TenGigE0/0";
+    }
+    bridge {
+      learning {
+        mac-table {
+          size 1024;
+          timeout 600;
+          verbose false;
+          max-occupy 0.4;
+        }
+      }
+    }
+    pseudowire {
+      name "pw_B";
+      vc-id 0;
+      transport "transport";
+      tunnel {
+        l2tpv3 {
+          local-cookie "\x77\x66\x55\x44\x33\x33\x11\x00";
+          remote-cookie "\x00\x11\x22\x33\x44\x55\x66\x77";
+        }
+      }
+      control-channel {
+        heartbeat 2;
+        dead-factor 4;
+      }
+    }
+  }
+}
