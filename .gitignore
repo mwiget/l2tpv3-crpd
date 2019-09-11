@@ -3,3 +3,4 @@ snabbswitch
 *.pcap
 *.broken
 *.o
+*/*gz

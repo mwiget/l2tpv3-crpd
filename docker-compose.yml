@@ -9,7 +9,6 @@ services:
     container_name: crpd1
     hostname: crpd1
     privileged: true
-#    network_mode: "none"
     restart: on-failure
     volumes:
       - $PWD/crpd1:/config
@@ -21,19 +20,32 @@ services:
     container_name: crpd2
     hostname: crpd2
     privileged: true
-#    network_mode: "none"
     restart: on-failure
     volumes:
       - $PWD/crpd2:/config
     networks:
       net2-site2:
 
+  crpd1-disoff:
+    build: disoff
+    privileged: true
+    network_mode: "service:crpd1"
+    depends_on:
+       - "crpd1"
+
+  crpd2-disoff:
+    build: disoff
+    privileged: true
+    network_mode: "service:crpd2"
+    depends_on:
+       - "crpd2"
+
   snabb1:
     image: snabb
     container_name: snabb1
     hostname: snabb1
     privileged: true
-    restart: on-failure
+    #    restart: on-failure
     command: l2vpn /u/snabb1.conf.txt
     volumes:
       - $PWD/snabb1:/u
@@ -47,7 +59,7 @@ services:
     container_name: snabb2
     hostname: snabb2
     privileged: true
-    restart: on-failure
+    #restart: on-failure
     command: l2vpn /u/snabb2.conf.txt
     volumes:
       - $PWD/snabb2:/u
