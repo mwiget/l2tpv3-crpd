@@ -107,4 +107,17 @@ PING 192.168.168.2 (192.168.168.2) 56(84) bytes of data.
 rtt min/avg/max/mdev = 1.268/6.047/10.826/4.779 ms
 ```
 
+Check BGP session between crpd1 and crpd2:
+
+```
+$ docker exec -ti crpd1 cli show bgp summary
+Threading mode: BGP I/O
+Groups: 1 Peers: 1 Down peers: 0
+Table          Tot Paths  Act Paths Suppressed    History Damp State    Pending
+inet.0
+                       1          0          0          0          0          0
+Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn State|#Active/Received/Accepted/Damped...
+192.168.168.2         65000          8          8       0       0        2:25 Establ
+  inet.0: 0/1/1/0
+```
 
